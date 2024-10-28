@@ -4,14 +4,14 @@ package sejtautomata;
 public class Board {
 	private int rows;
 	private int cols;
-
+	private int a;
     
     public Board(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
         initializeBoard();
     }
-    
+    //
    
 
     
