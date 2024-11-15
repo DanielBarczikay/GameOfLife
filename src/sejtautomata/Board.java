@@ -1,18 +1,28 @@
 package sejtautomata;
 
+import java.io.Serializable;
 
-public class Board {
+import javax.swing.JPanel;
+
+public class Board extends JPanel implements Serializable {
 	private int rows;
 	private int cols;
-	private int a;
-    
+
+	
     public Board(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
         initializeBoard();
     }
-    //
-   
+    
+    
+    public int getRows() {
+    	return rows;
+    }
+    
+    public int getCols() {
+    	return cols;
+    }
 
     
     // Inicializáljuk a táblát véletlenszerű állapotú sejtekkel vagy meghatározott mintával
