@@ -11,7 +11,6 @@ public class Cell implements Serializable {
 	private boolean nextIsAlive = false;
 	private Point location;
 	private ArrayList<Cell> neighbors = new ArrayList<>();
-	private Board board;
 	
 	
 	public Cell(Point position) {
@@ -31,6 +30,11 @@ public class Cell implements Serializable {
 		return nextIsAlive;
 	}
 	
+    public ArrayList<Cell> getNeighbors(){
+    	return neighbors;
+    }
+    
+    
 	// Setter
 	public void setAlive(boolean alive) {
 		isAlive = alive;
@@ -48,7 +52,7 @@ public class Cell implements Serializable {
                 if (i == 0 && j == 0) continue; // Ne számoljuk saját magát
                 int tempRow = (int) (position.getX() + i);
                 int tempCol = (int) (position.getY() + j);
-                if (board.isValidPosition(tempRow, tempCol)){
+                if (Board.isValidPosition(tempRow, tempCol)){
                 	for (Cell item : lista) {
                 		if ((item.getPoint().getX() == tempRow) && (item.getPoint().getY() == tempCol)) {
                 			neighbors.add(item);
@@ -60,8 +64,6 @@ public class Cell implements Serializable {
     }
     
     
-    public ArrayList<Cell> getNeighbors(){
-    	return neighbors;
-    }
+
     
 }

@@ -1,19 +1,27 @@
 package sejtautomata;
-
 import javax.swing.JFrame;
 
 
 public class Main {
 
 	public static void main(String[] args) {
+		// Ne emeld 200 fölé!!
+		int rows = 180;
+		int cols = 100;
+		
+		Board gamePanel = new Board(rows, cols);
 		Game game = new Game(); // 10x10 tábla
-        game.start();
-        
- 	   // JFrame frame = new JFrame("DrawRect");
-    	//	frame.setSize(600, 600);  
-    	//    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    	//    frame.getContentPane().add(new drawBoard (cells));
-    	//    frame.setVisible(true);
+		
+		
+		JFrame frame = new JFrame("GameOfLife");
+		frame.setSize(gamePanel.getCellSize() * rows, gamePanel.getCellSize() * cols);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		Menu menu = new Menu(frame, game);
+		
+        frame.setResizable(false); // Az ablak méretének fixálása
+		frame.add(gamePanel);
+		frame.setVisible(true);
 	}
 }
 

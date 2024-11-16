@@ -7,25 +7,17 @@ import java.util.ArrayList;
 public class Game implements Serializable {
     private static final long serialVersionUID = 1L;
 	private ArrayList<Cell> cells = new ArrayList<>();
-	private ArrayList<Integer> survive = new ArrayList<>();
 	private ArrayList<Integer> born = new ArrayList<>();
+	private ArrayList<Integer> survive = new ArrayList<>();
+	
 	
 	// A deathListben azok a intek szerepelnek amely megadja hány szomszéd esetén pusztul el a cella
 	private ArrayList<Integer> deathList = new ArrayList<>();
-	private Board board;
 
     
     public Game() {}
     
-    
-    public void start() {
-    	createList();
-    	// A deathListben azok a intek szerepelnek amely megadja hány szomszéd esetén pusztul el a cella
-    	calculateDeath(); 
-    	
-    	
-    }
-    
+
     // Getterek
     public ArrayList<Cell> getCells(){
     	return cells;
@@ -49,9 +41,12 @@ public class Game implements Serializable {
     	this.survive = survive;
     }
     
+    public void setCells(ArrayList<Cell> cells) {
+    	this.cells = cells;
+    }
     
     
-    // Kell egy olyan függvény ami megkap egy Stringet és visszaad egy Arraylist<Integer>-t
+    // Megkap egy Stringet és visszaad egy Arraylist<Integer>-t
     private ArrayList<Integer> stringToList(String string) {
     	ArrayList<Integer> lista = new ArrayList<>();
     	
@@ -73,23 +68,7 @@ public class Game implements Serializable {
     	}
     }
   
-    
-    // Listába felfűzi a cellákat
-    public void createList() {
-    	for (int i = 0; i < board.getRows(); i++) {
-    		for (int k = 0; k < board.getCols(); k++) {
-    			Cell tmpCell = new Cell(new Point(i,k));
-    			cells.add(tmpCell);
-    		}	
-    	}
-    	// Beállítjuk a szomszédokat
-    	for (Cell cellItem : cells) {
-    		cellItem.setNeighbors(cellItem.getPoint(), cells);
-    	}
-    	
-    	cells.get(23).setAlive(true);
-    }
-    
+ 
     
     // Kiszámolja milyen mennyiségű szomszédnál pusztul el a sejt
     private void calculateDeath() {

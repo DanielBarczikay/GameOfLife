@@ -5,12 +5,13 @@ import java.util.ArrayList;
 
 
 public class FileHandler {
+	private static final String FILE_EXTENSION = ".ser";
     
     // Játékállás mentése fájlba (mindig tömörítve)
     public static void saveGameState(String fileName, Game game) {
     	
         // Fájlnév ellenőrzése és korrigálása
-        if (!fileName.endsWith(".ser")) fileName += ".ser";
+        if (!fileName.endsWith(FILE_EXTENSION)) fileName += FILE_EXTENSION;
         
         // Kiirjuk fájlba az adatokat
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))){
@@ -25,7 +26,7 @@ public class FileHandler {
     
     public static Game loadGameState(String fileName) throws ClassNotFoundException {
     	// Fájlnév ellenőrzése és korrigálása
-    	if (!fileName.endsWith(".ser")) fileName += ".ser"; 
+    	if (!fileName.endsWith(FILE_EXTENSION)) fileName += FILE_EXTENSION; 
     	
     	// Beolvassuk fájlból az adatokat
     	try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))){
