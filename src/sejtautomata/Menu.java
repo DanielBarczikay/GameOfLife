@@ -1,17 +1,18 @@
 package sejtautomata;
 
-import java.awt.Desktop;
+import java.awt.GridLayout;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 
 public class Menu {
 	public Menu(JFrame frame, Game game) {
@@ -30,13 +31,29 @@ public class Menu {
 		menuBar.add(gameMenu);
 		menuBar.add(settingsMenu);
 		
-		// Add menu items to the fileMenu
-		JMenuItem importItem = new JMenuItem("Import");
-		JMenuItem exportItem = new JMenuItem("Export");
-		JMenuItem exitItem = new JMenuItem("Exit");
+		// Add menu items
+		JMenuItem importItem = new JMenuItem("Import"); // Ready
+		JMenuItem exportItem = new JMenuItem("Export"); // Ready
+		JMenuItem exitItem = new JMenuItem("Exit"); //
+		JMenuItem startItem = new JMenuItem("Start"); // Ready
+		JMenuItem stopItem = new JMenuItem("Stop");
+		JMenuItem resetItem = new JMenuItem("Reset"); // Ready
+		JMenuItem restartItem = new JMenuItem("Restart"); // Ready
+		JMenuItem bsItem = new JMenuItem("Born/Survive"); // Ready
+		JMenuItem speedItem = new JMenuItem("Speed");
+		
+		fileMenu.add(importItem);
+		fileMenu.add(exportItem);
+		fileMenu.add(exitItem);
+		gameMenu.add(startItem);
+		gameMenu.add(stopItem);
+		gameMenu.add(resetItem);
+		gameMenu.add(restartItem);
+		settingsMenu.add(bsItem);
+		settingsMenu.add(speedItem);
+		
 		
 		importItem.addActionListener(e -> {
-	
 			// Létrehozunk egy új JFileChooser-t
 		    JFileChooser fileChooser = new JFileChooser();
 		    
@@ -45,7 +62,7 @@ public class Menu {
 		        "Serialized files (*.ser)", "ser");
 		    fileChooser.setFileFilter(filter);
 		    
-		    // Beállítjuk a dialog címét
+		    // Beállítjuk az ablak címét
 		    fileChooser.setDialogTitle("Import Game");
 		    
 		    // Megjelenítjük a mentés ablakot és elmentjük a választott opciót
@@ -74,7 +91,7 @@ public class Menu {
 		        "Serialized files (*.ser)", "ser");
 		    fileChooser.setFileFilter(filter);
 		    
-		    // Megjelenítjük a Windows-os megnyitás ablakot
+		    // Megjelenítjük az ablakot
 		    int userSelection = fileChooser.showOpenDialog(frame);
 		    
 		    if (userSelection == JFileChooser.APPROVE_OPTION) {
@@ -87,32 +104,53 @@ public class Menu {
 		    }
 		});
 		
-		fileMenu.add(importItem);
-		fileMenu.add(exportItem);
-		fileMenu.add(exitItem);
+		exitItem.addActionListener(e -> {System.exit(0);});
+		startItem.addActionListener(e -> {try {
+			game.startGame();
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}});
+		stopItem.addActionListener(e -> {game.stopGame();});
+		restartItem.addActionListener(e -> {game.restartGame();});
+		resetItem.addActionListener(e -> {game.resetGame();});
 		
-		// Add menu items to the gameMenu
-		JMenuItem startItem = new JMenuItem("Start");
-		JMenuItem stopItem = new JMenuItem("Stop");
-		JMenuItem resetItem = new JMenuItem("Reset");
-		JMenuItem restartItem = new JMenuItem("Restart");
 		
-		/*
-		startItem.addActionListener(e -> {startGame();});
-		stopItem.addActionListener(e -> {stopGame();});
-		resetItem.addActionListener(e -> {resetGame();});
-		*/
-		gameMenu.add(startItem);
-		gameMenu.add(stopItem);
-		gameMenu.add(resetItem);
-		gameMenu.add(restartItem);
 		
-		// Add menu items to the settingsMenu
-		JMenuItem bsItem = new JMenuItem("Born/Survive");
-		JMenuItem speedItem = new JMenuItem("Speed");
-		
-		settingsMenu.add(bsItem);
-		settingsMenu.add(speedItem);
+		bsItem.addActionListener(e -> {
+		    // Létrehozunk egy JPanel-t a beviteli mezőknek
+		    JPanel panel = new JPanel();
+		    panel.setLayout(new GridLayout(2, 2, 5, 5));  // 2x2 grid, 5px spacing
+
+		    // Létrehozzuk a beviteli mezőket
+		    JTextField bornField = new JTextField(10);
+		    JTextField surviveField = new JTextField(10);
+
+		    // Hozzáadjuk a címkéket és mezőket a panelhez
+		    panel.add(new JLabel("Born:"));
+		    panel.add(bornField);
+		    panel.add(new JLabel("Survive:"));
+		    panel.add(surviveField);
+
+		    // Megjelenítjük a párbeszédablakot
+		    int result = JOptionPane.showConfirmDialog(
+		        frame, 
+		        panel, 
+		        "Born/Survive Settings", 
+		        JOptionPane.OK_CANCEL_OPTION,
+		        JOptionPane.PLAIN_MESSAGE
+		    );
+
+		    // Ha az OK gombra kattintott a felhasználó
+		    if (result == JOptionPane.OK_OPTION) {
+		        String bornStr = bornField.getText();
+		        String surviveStr = surviveField.getText();
+
+		        // Beállítjuk az új értékeket a játékban
+		        game.setBorn(bornStr);
+		        game.setSurvive(surviveStr);
+		    }
+		});
+
 		
 	
 	}

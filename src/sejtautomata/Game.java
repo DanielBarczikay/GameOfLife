@@ -1,4 +1,5 @@
 package sejtautomata;
+
 import java.awt.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -6,43 +7,84 @@ import java.util.ArrayList;
 
 public class Game implements Serializable {
     private static final long serialVersionUID = 1L;
-	private ArrayList<Cell> cells = new ArrayList<>();
 	private ArrayList<Integer> born = new ArrayList<>();
 	private ArrayList<Integer> survive = new ArrayList<>();
-	
+	Board board;
+	private boolean isRunning = false;
+	boolean firstRunning = true;
 	
 	// A deathListben azok a intek szerepelnek amely megadja hány szomszéd esetén pusztul el a cella
 	private ArrayList<Integer> deathList = new ArrayList<>();
 
     
-    public Game() {}
-    
-
-    // Getterek
-    public ArrayList<Cell> getCells(){
-    	return cells;
-    }
-    
-    public ArrayList<Integer> getBorn(){
-    	return born;
-    }
-    
-    public ArrayList<Integer> getSurvive(){
-    	return survive;
+    public Game(Board board) {
+    	this.board = board;
+    	// Alapértelmezett Conway-féle model (S23, B3)
+    	survive.add(2);
+    	survive.add(3);
+    	calculateDeath(); 
+    	born.add(3);
     }
     
     
-    // Setterek
-    public void setBorn(ArrayList<Integer> born) {
-    	this.born = born;
+    public void setBorn(String born){
+    	this.born = stringToList(born);
     }
     
-    public void setSurvive(ArrayList<Integer> survive){
-    	this.survive = survive;
+    public void setSurvive(String survive){
+    	this.survive = stringToList(survive);
+    	calculateDeath();
     }
     
-    public void setCells(ArrayList<Cell> cells) {
-    	this.cells = cells;
+    
+    
+    public void startGame() throws InterruptedException {
+    	
+    	isRunning  = true;
+    	if (firstRunning) {
+    		board.setOriginalCells();
+    		firstRunning = false;
+    	}
+    	
+    	
+    	Thread gameThread = new Thread(() -> {
+            try {
+                while (isRunning) {
+                    setBornAndDeath(); // Beállítja a következő generációt
+                    leptetes(); // Végrehajtja a léptetést
+                    board.repaint(); // Újrarajzolás
+                    Thread.sleep(500); // Szünet a következő iteráció előtt (500 ms)
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        gameThread.start(); // Indítja a játék szálát
+    }
+    
+    
+    public void stopGame() {
+        isRunning = false; // Megállítja a ciklust
+    }
+    
+    
+    public void resetGame() {
+    	for (int i = 0; i < board.getRows(); i++) {
+    		for (int k = 0; k < board.getCols(); k++) {
+    			board.getCells()[i][k].setAlive(false);
+    		}
+    	}
+    	board.repaint(); // Újrarajzolás
+    }
+    
+    
+    public void restartGame() {
+    	for (int i = 0; i < board.getRows(); i++) {
+    	    for (int j = 0; j < board.getCols(); j++) {
+    	    	board.getCells()[i][j].setAlive(board.getOriginalCells()[i][j].isAlive());
+    	    }
+    	}
+    	board.repaint(); // Újrarajzolás
     }
     
     
@@ -62,36 +104,54 @@ public class Game implements Serializable {
     
     // Következő iteráció beállítása
     private void leptetes() {
-    	//setBornAndDeath();
-    	for (Cell cellItem : cells) {
-    		cellItem.setAlive((cellItem.getNextAlive()) ? true : false);
+    	for (int i = 0; i < board.getRows(); i++) {
+    		for (int k = 0; k < board.getCols(); k++) {
+    			Cell tmpCell = board.getCells()[i][k];
+    			tmpCell.setAlive((tmpCell.getNextAlive()) ? true : false);
+    		}
     	}
     }
   
- 
     
     // Kiszámolja milyen mennyiségű szomszédnál pusztul el a sejt
     private void calculateDeath() {
-    	for (int i = 1; i <= 8; i++) {
+    	for (int i = 0; i <= 8; i++) {
     		deathList.add(i); // Feltöltjük a newList-et 1-8-ig
     	}
     	deathList.removeAll(survive);
     }
     
   
-	// Végig megy a listán és az aktuális szabály alapján beállítja a cellákat
+	// Végig megy a tömbön és az aktuális szabály alapján beállítja a cellákat
 	private void setBornAndDeath() {
 		
-		for (Cell cellItem : cells) {
-			int neighbors = 0;
-			for (Cell cellNeighbors : cellItem.getNeighbors()) {
-				if (cellNeighbors.isAlive()) neighbors++;
-			}
-			
-			if (born.contains(neighbors)) cellItem.setNextAlive(true);
-			else if (deathList.contains(neighbors)) cellItem.setNextAlive(false);
+		for (int i = 0; i < board.getRows(); i++) {
+    		for (int k = 0; k < board.getCols(); k++) {
+    			Cell tmpCell = board.getCells()[i][k];
+    			int aliveNeighbors = getAliveNeighbors(tmpCell.getPoint(), board.getCells());
+    			
+    			if (born.contains(aliveNeighbors)) tmpCell.setNextAlive(true);
+    			else if (deathList.contains(aliveNeighbors)) tmpCell.setNextAlive(false);
+    		}
 		}
 	}
+	
+	
+    // Visszaadja egy adott cella körüli élő szomszédjainak számát
+    private int getAliveNeighbors(Point position, Cell[][] cells) {
+    	int count = 0;
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (i == 0 && j == 0) continue; // Ne számoljuk saját magát
+                int tempRow = (int) (position.getX() + i);
+                int tempCol = (int) (position.getY() + j);
+                if (board.isValidPosition(tempRow, tempCol) && cells[tempRow][tempCol].isAlive()){
+                	count++;
+                }
+            }
+        }
+        return count;
+    }
 	
 
 }

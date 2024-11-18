@@ -2,15 +2,13 @@ package sejtautomata;
 
 import java.awt.Point;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+
 
 public class Cell implements Serializable {
     private static final long serialVersionUID = 1L;
 	private boolean isAlive = false;
 	private boolean nextIsAlive = false;
 	private Point location;
-	private ArrayList<Cell> neighbors = new ArrayList<>();
 	
 	
 	public Cell(Point position) {
@@ -30,10 +28,6 @@ public class Cell implements Serializable {
 		return nextIsAlive;
 	}
 	
-    public ArrayList<Cell> getNeighbors(){
-    	return neighbors;
-    }
-    
     
 	// Setter
 	public void setAlive(boolean alive) {
@@ -45,25 +39,5 @@ public class Cell implements Serializable {
 	}
 	
 	
-    // Felveszi egy adott cella szomszédjait
-    public void setNeighbors(Point position, List<Cell> lista) {
-        for (int i = -1; i <= 1; i++) {
-            for (int j = -1; j <= 1; j++) {
-                if (i == 0 && j == 0) continue; // Ne számoljuk saját magát
-                int tempRow = (int) (position.getX() + i);
-                int tempCol = (int) (position.getY() + j);
-                if (Board.isValidPosition(tempRow, tempCol)){
-                	for (Cell item : lista) {
-                		if ((item.getPoint().getX() == tempRow) && (item.getPoint().getY() == tempCol)) {
-                			neighbors.add(item);
-                		}
-                	}
-                }
-            }
-        }
-    }
-    
-    
-
     
 }

@@ -2,43 +2,51 @@ package sejtautomata;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.Serializable;
-import java.util.ArrayList;
 import javax.swing.JPanel;
 
 
 public class Board extends JPanel implements Serializable {
-	private static int rows; // Hány cella van egy adott sorban
-	private static int cols; // Hány cella van egy adott oszlopban
+	private static final long serialVersionUID = 1L;
+	private final int rows; // Hány cella van egy adott sorban
+	private final int cols; // Hány cella van egy adott oszlopban
+	private int cellSize;
+	private Cell[][] cells;
+	private Cell[][] originalCells;
+	private Point zoomPoint = null;
+	private double zoomFactor = 1.0;
 
-	private static final int CELL_SIZE = 7;
-	private static int absoluteRows = rows * CELL_SIZE;
-	private static int absoluteCols = cols * CELL_SIZE;
-	private ArrayList<Cell> cells = new ArrayList<>();
 	
-	public Board(int rows, int cols) {
+	public Board(int rows, int cols, int cellSize) {
 		this.rows = rows;
 		this.cols = cols;
-	
-		// Listába felfűzi a cellákat
+		this.cellSize = cellSize;
+		
+		// Inicializáljuk a tömböt
+        cells = new Cell[rows][cols];
+        originalCells = new Cell[rows][cols];
+        
+		// A tömbben felviszi a Cellákat
     	for (int i = 0; i < rows; i++) {
     		for (int k = 0; k < cols; k++) {
-    			Cell tmpCell = new Cell(new Point(i,k));
-    			cells.add(tmpCell);
+    			cells[i][k] = new Cell(new Point(i,k)); 
+    			originalCells[i][k] = new Cell(new Point(i,k)); 
     		}	
     	}
-    	// Beállítjuk a szomszédokat
-    	for (Cell cellItem : cells) {
-    		cellItem.setNeighbors(cellItem.getPoint(), cells);
-    	}
+  
     	
-    	cells.get(23).setAlive(true);
-    	cells.get(24).setAlive(true);
-    	cells.get(25).setAlive(true);
+    	cells[0][5].setAlive(true);
+    	cells[0][7].setAlive(true);
+    	cells[1][6].setAlive(true);
+    	
+    	mouseListener();
+    	
     }
    
 	
@@ -49,14 +57,53 @@ public class Board extends JPanel implements Serializable {
 				int x = e.getX();
                 int y = e.getY();
                 
-                // Kiszámoljuk, melyik cellába kattintottunk
-                int cellX = x / CELL_SIZE;
-                int cellY = y / CELL_SIZE;
+                // Kiszámoljuk, melyik cellára kattintottunk a nagyítás alapján
+                // Nagyítási tényező és zoom középpont alkalmazása
+                int cellX;
+                int cellY;
+                if (zoomPoint != null) {
+                	double adjustedX = (x - zoomPoint.x) / zoomFactor + zoomPoint.x;
+                    double adjustedY = (y - zoomPoint.y) / zoomFactor + zoomPoint.y;
+
+                    // Átszámolás cellaindexre
+                    cellX = (int) (adjustedX / cellSize);
+                    cellY = (int) (adjustedY / cellSize);
+                }
+                else {
+                	cellX = (int) (x / cellSize);
+                    cellY = (int) (y / cellSize);
+                }
                 
-                if (isValidPosition(cellX, cellY)
+                
+                if (isValidPosition(cellX, cellY)){
+                	Cell cell = cells[cellX][cellY];
+                	cell.setAlive(!cell.isAlive()); // Állapot váltás
+                	repaint(); // Újrarajzolás
+                }
 			}
+		});
 		
-		
+		addMouseWheelListener(new MouseWheelListener() {
+		    @Override
+		    public void mouseWheelMoved(MouseWheelEvent e) {
+		        int rotation = e.getWheelRotation();
+		        if (rotation < 0) {
+		            // Nagyítás
+		            if (zoomFactor < 3.0) { // Maximális zoom tényező
+		                zoomFactor *= 1.1;
+		            }
+		        } else {
+		            // Kicsinyítés
+		            if (zoomFactor > 1.0) { // Minimális zoom tényező
+		                zoomFactor /= 1.1;
+		            }
+		        }
+
+		        // A zoom pont az egér pozíciójánál
+		        zoomPoint = e.getPoint();
+
+		        repaint();
+		    }
 		});
 	}
 	
@@ -65,26 +112,46 @@ public class Board extends JPanel implements Serializable {
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
+	    Graphics2D g2d = (Graphics2D) g;
+	    
+	    // Nagyítás és eltolás alkalmazása
+	    if (zoomPoint != null) {
+	        g2d.translate(zoomPoint.x, zoomPoint.y);
+	        g2d.scale(zoomFactor, zoomFactor);
+	        g2d.translate(-zoomPoint.x, -zoomPoint.y);
+	    }
+	    
 		 // Háttér szín
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, getWidth(), getHeight());
 		
-		for (Cell cellItem : cells) {
-			if (cellItem.isAlive()) g.setColor(Color.WHITE);
-			else g.setColor(Color.DARK_GRAY);
-			
-			int x = (int) cellItem.getPoint().getX();
-			int y = (int) cellItem.getPoint().getY();
-			g.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-			
-			// Szélek
-			g.setColor(Color.DARK_GRAY);
-			g.drawRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        // Végigmegyünk a tömbön
+       	for (int i = 0; i < rows; i++) {
+    		for (int k = 0; k < cols; k++) {
+    			if (cells[i][k].isAlive()) g.setColor(Color.WHITE);
+    			else g.setColor(Color.DARK_GRAY);
+    			
+    			g.fillRect(i * cellSize, k * cellSize, cellSize, cellSize);
+    			
+    			// Szélek
+    			g.setColor(Color.DARK_GRAY);
+    			g.drawRect(i * cellSize, k * cellSize, cellSize, cellSize);
+    		}
 		}
 	}
 	
 	
 	// Getterek
+	public Cell[][] getCells() {
+    	return cells;
+    }
+	
+	
+	public Cell[][] getOriginalCells() {
+    	return originalCells;
+    }
+	
+	
     public int getRows() {
     	return rows;
     }
@@ -94,12 +161,21 @@ public class Board extends JPanel implements Serializable {
     }
     
     public int getCellSize() {
-    	return CELL_SIZE;
+    	return cellSize;
     }
+    
+	
+	public void setOriginalCells() {
+    	for (int i = 0; i < rows; i++) {
+    	    for (int j = 0; j < cols; j++) {
+    	    	originalCells[i][j].setAlive(cells[i][j].isAlive());
+    	    }
+    	}
+	}
 
     
     // Ellenőrzi, hogy a pozíció a tábla határain belül van-e
-    public static boolean isValidPosition(int row, int col) {
+    public boolean isValidPosition(int row, int col) {
     	return row >= 0 && row < rows && col >= 0 && col < cols;
     }
 
