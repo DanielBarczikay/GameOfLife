@@ -3,6 +3,7 @@ package sejtautomata;
 import java.awt.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
+import javax.swing.SwingUtilities;
 
 
 public class Game implements Serializable {
@@ -12,18 +13,35 @@ public class Game implements Serializable {
 	Board board;
 	private boolean isRunning = false;
 	boolean firstRunning = true;
+	private int speed = 60;
+	 private Thread gameThread;  // Új thread referencia
 	
 	// A deathListben azok a intek szerepelnek amely megadja hány szomszéd esetén pusztul el a cella
 	private ArrayList<Integer> deathList = new ArrayList<>();
 
     
-    public Game(Board board) {
-    	this.board = board;
+    public Game() {
     	// Alapértelmezett Conway-féle model (S23, B3)
     	survive.add(2);
     	survive.add(3);
     	calculateDeath(); 
     	born.add(3);
+    }
+    
+    
+    public void setBoard(Board board) {
+    	stopGame(); // Leállítjuk a futó játékot board csere előtt
+        this.board = board;
+        SwingUtilities.invokeLater(() -> board.repaint());
+    }
+    
+    public Board getBoard() {
+    	return board;
+    }
+    
+    public void setSpeed(String speedStr) {
+    	int speedInt = Integer.parseInt(speedStr);
+    	this.speed = speedInt;
     }
     
     
@@ -36,27 +54,41 @@ public class Game implements Serializable {
     	calculateDeath();
     }
     
+    public void newGame() {
+    	firstRunning = true;
+    	stopGame();
+    	SwingUtilities.invokeLater(() -> {
+            try {
+                startGame();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+    }
     
     
     public void startGame() throws InterruptedException {
     	
-    	isRunning  = true;
-    	if (firstRunning) {
-    		board.setOriginalCells();
-    		firstRunning = false;
-    	}
-    	
-    	
-    	Thread gameThread = new Thread(() -> {
+    	if (isRunning) return; // Ha már fut, ne indítsunk új szálat
+        
+        isRunning = true;
+        if (firstRunning) {
+            board.setOriginalCells();
+            firstRunning = false;
+        }
+
+        gameThread = new Thread(() -> {
             try {
                 while (isRunning) {
-                    setBornAndDeath(); // Beállítja a következő generációt
-                    leptetes(); // Végrehajtja a léptetést
-                    board.repaint(); // Újrarajzolás
-                    Thread.sleep(500); // Szünet a következő iteráció előtt (500 ms)
+                    SwingUtilities.invokeLater(() -> {
+                        setBornAndDeath();
+                        leptetes();
+                        board.repaint();
+                    });
+                    Thread.sleep(speed);
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         });
         gameThread.start(); // Indítja a játék szálát
@@ -64,28 +96,46 @@ public class Game implements Serializable {
     
     
     public void stopGame() {
-        isRunning = false; // Megállítja a ciklust
+    	isRunning = false; // Megállítja a ciklust
+        if (gameThread != null) {
+            gameThread.interrupt();
+            try {
+                gameThread.join(1000); // Várunk max 1 másodpercet a szál befejezésére
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
     }
     
     
     public void resetGame() {
-    	for (int i = 0; i < board.getRows(); i++) {
-    		for (int k = 0; k < board.getCols(); k++) {
-    			board.getCells()[i][k].setAlive(false);
-    		}
-    	}
-    	board.repaint(); // Újrarajzolás
+        stopGame();
+        SwingUtilities.invokeLater(() -> {
+            for (int i = 0; i < board.getRows(); i++) {
+                for (int k = 0; k < board.getCols(); k++) {
+                    board.getCells()[i][k].setAlive(false);
+                }
+            }
+            board.repaint();
+        });
     }
+
     
     
     public void restartGame() {
-    	for (int i = 0; i < board.getRows(); i++) {
-    	    for (int j = 0; j < board.getCols(); j++) {
-    	    	board.getCells()[i][j].setAlive(board.getOriginalCells()[i][j].isAlive());
-    	    }
-    	}
-    	board.repaint(); // Újrarajzolás
+        stopGame();
+        SwingUtilities.invokeLater(() -> {
+            for (int i = 0; i < board.getRows(); i++) {
+                for (int j = 0; j < board.getCols(); j++) {
+                    board.getCells()[i][j].setAlive(board.getOriginalCells()[i][j].isAlive());
+                    board.getCells()[i][j].setNextAlive(board.getOriginalCells()[i][j].isAlive());
+                }
+            }
+            board.repaint();
+        });
     }
+
     
     
     // Megkap egy Stringet és visszaad egy Arraylist<Integer>-t

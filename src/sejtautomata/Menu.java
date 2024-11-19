@@ -2,6 +2,7 @@ package sejtautomata;
 
 import java.awt.GridLayout;
 import java.io.File;
+import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -11,15 +12,23 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 
 public class Menu {
-	public Menu(JFrame frame, Game game) {
+	private JFrame frame;
+	private Game game;
+	
+	public Menu(Game game, JFrame frame) {
+		this.frame = frame;
+		this.game = game;
+	}
+	
+	public JMenuBar makeMenu() {
 		
 		// Create the menu bar and add it to the frame
 		JMenuBar menuBar = new JMenuBar();
-		frame.setJMenuBar(menuBar);
 		
 		
 		// Create the individual menus and add them to the menu bar
@@ -32,15 +41,15 @@ public class Menu {
 		menuBar.add(settingsMenu);
 		
 		// Add menu items
-		JMenuItem importItem = new JMenuItem("Import"); // Ready
-		JMenuItem exportItem = new JMenuItem("Export"); // Ready
-		JMenuItem exitItem = new JMenuItem("Exit"); //
-		JMenuItem startItem = new JMenuItem("Start"); // Ready
-		JMenuItem stopItem = new JMenuItem("Stop");
-		JMenuItem resetItem = new JMenuItem("Reset"); // Ready
-		JMenuItem restartItem = new JMenuItem("Restart"); // Ready
-		JMenuItem bsItem = new JMenuItem("Born/Survive"); // Ready
-		JMenuItem speedItem = new JMenuItem("Speed");
+		JMenuItem importItem = new JMenuItem("Import");
+		JMenuItem exportItem = new JMenuItem("Export"); 
+		JMenuItem exitItem = new JMenuItem("Exit");
+		JMenuItem startItem = new JMenuItem("Start"); 
+		JMenuItem stopItem = new JMenuItem("Stop"); 
+		JMenuItem resetItem = new JMenuItem("Reset"); 
+		JMenuItem restartItem = new JMenuItem("Restart"); 
+		JMenuItem bsItem = new JMenuItem("Born/Survive"); 
+		JMenuItem speedItem = new JMenuItem("Speed"); 
 		
 		fileMenu.add(importItem);
 		fileMenu.add(exportItem);
@@ -54,6 +63,36 @@ public class Menu {
 		
 		
 		importItem.addActionListener(e -> {
+			JFileChooser fileChooser = new JFileChooser();
+		    
+		    // Beállítjuk hogy csak .ser kiterjesztésű fájlokat lásson
+		    FileNameExtensionFilter filter = new FileNameExtensionFilter(
+		        "Serialized files (*.ser)", "ser");
+		    fileChooser.setFileFilter(filter);
+		    
+		    // Megjelenítjük az ablakot
+		    int userSelection = fileChooser.showOpenDialog(frame);
+		    
+		    if (userSelection == JFileChooser.APPROVE_OPTION) {
+		        File fileName = fileChooser.getSelectedFile();
+		        try {
+		        	game.stopGame(); // Leállítjuk a futó játékot
+					Board newBoard = FileHandler.loadGameState(fileName.getAbsolutePath());
+					SwingUtilities.invokeLater(() -> {
+                        game.setBoard(newBoard);
+                        frame.getContentPane().removeAll();
+                        frame.add(newBoard);
+                        frame.revalidate();
+                        frame.repaint();
+                    });
+					
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				}
+		    }
+		});
+		
+		exportItem.addActionListener(e -> { 
 			// Létrehozunk egy új JFileChooser-t
 		    JFileChooser fileChooser = new JFileChooser();
 		    
@@ -77,32 +116,10 @@ public class Menu {
 		        if (fileName.endsWith(".ser")) fileName += ".ser";
 		        
 		        // Meghívjuk a mentés függvényt a fájlnévvel
-		        FileHandler.saveGameState(fileName, game);
+		        FileHandler.saveGameState(fileName, game.getBoard());
 		    }
-		    
-			
 		});
 		
-		exportItem.addActionListener(e -> { 
-		   JFileChooser fileChooser = new JFileChooser();
-		    
-		    // Beállítjuk hogy csak .ser kiterjesztésű fájlokat lásson
-		    FileNameExtensionFilter filter = new FileNameExtensionFilter(
-		        "Serialized files (*.ser)", "ser");
-		    fileChooser.setFileFilter(filter);
-		    
-		    // Megjelenítjük az ablakot
-		    int userSelection = fileChooser.showOpenDialog(frame);
-		    
-		    if (userSelection == JFileChooser.APPROVE_OPTION) {
-		        File fileName = fileChooser.getSelectedFile();
-		        try {
-					FileHandler.loadGameState(fileName.getAbsolutePath());
-				} catch (ClassNotFoundException e1) {
-					e1.printStackTrace();
-				}
-		    }
-		});
 		
 		exitItem.addActionListener(e -> {System.exit(0);});
 		startItem.addActionListener(e -> {try {
@@ -135,7 +152,7 @@ public class Menu {
 		    int result = JOptionPane.showConfirmDialog(
 		        frame, 
 		        panel, 
-		        "Born/Survive Settings", 
+		        "Settings", 
 		        JOptionPane.OK_CANCEL_OPTION,
 		        JOptionPane.PLAIN_MESSAGE
 		    );
@@ -150,8 +167,41 @@ public class Menu {
 		        game.setSurvive(surviveStr);
 		    }
 		});
-
 		
+		speedItem.addActionListener(e -> {
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Függőleges elrendezés
+
+			JTextField speedField = new JTextField(10);
+			panel.add(speedField);
+
+			// Megjelenítjük a párbeszédablakot
+			int result = JOptionPane.showConfirmDialog(
+			    frame, 
+			    panel, 
+			    "Speed", 
+			    JOptionPane.OK_CANCEL_OPTION,
+			    JOptionPane.PLAIN_MESSAGE
+			);
+			
+		    if (result == JOptionPane.OK_OPTION) {
+		    	String input = speedField.getText();
+		    	// Ellenőrizzük, hogy az input egy érvényes egész szám
+		        if (input.matches("\\d+")) { // Az int szabály: opcionális - jel és csak számok
+		            game.setSpeed(input);
+		        } else {
+		            // Ha nem szám, figyelmeztetjük a felhasználót
+		            JOptionPane.showMessageDialog(
+		                frame, 
+		                "Please enter a valid integer value for speed.", 
+		                "Invalid Input", 
+		                JOptionPane.ERROR_MESSAGE
+		            );
+		        }
+		    }
+		});
+
+		return menuBar;
 	
 	}
 }

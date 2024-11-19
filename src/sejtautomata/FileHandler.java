@@ -11,14 +11,14 @@ public class FileHandler {
 	private static final String FILE_EXTENSION = ".ser";
     
     // Játékállás mentése fájlba (mindig tömörítve)
-    public static void saveGameState(String fileName, Game game) {
+    public static void saveGameState(String fileName, Board board) {
     	
         // Fájlnév ellenőrzése és korrigálása
         if (!fileName.endsWith(FILE_EXTENSION)) fileName += FILE_EXTENSION;
         
         // Kiirjuk fájlba az adatokat
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))){
-        	oos.writeObject(game);
+        	oos.writeObject(board);
         	System.out.println("Adatok sikeresen mentve.");
         } 
         catch (Exception e) {
@@ -27,15 +27,15 @@ public class FileHandler {
     }
     
     
-    public static Game loadGameState(String fileName) throws ClassNotFoundException {
+    public static Board loadGameState(String fileName) throws ClassNotFoundException {
     	// Fájlnév ellenőrzése és korrigálása
     	if (!fileName.endsWith(FILE_EXTENSION)) fileName += FILE_EXTENSION; 
     	
     	// Beolvassuk fájlból az adatokat
     	try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))){
-    		Game newGame = (Game) ois.readObject();
+    		Board newBoard = (Board) ois.readObject();
     		System.out.println("Adatok sikeresen betöltve.");
-    		return newGame;
+    		return newBoard;
     	} 
     	catch (IOException e) {
             System.err.println("Hiba történt az adatok betöltése közben: " + e.getMessage());

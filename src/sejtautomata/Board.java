@@ -18,7 +18,7 @@ public class Board extends JPanel implements Serializable {
 	private final int cols; // Hány cella van egy adott oszlopban
 	private int cellSize;
 	private Cell[][] cells;
-	private Cell[][] originalCells;
+	private Cell[][] originalCells; // A restart miatt
 	private Point zoomPoint = null;
 	private double zoomFactor = 1.0;
 
@@ -40,56 +40,68 @@ public class Board extends JPanel implements Serializable {
     		}	
     	}
   
-    	
-    	cells[0][5].setAlive(true);
-    	cells[0][7].setAlive(true);
-    	cells[1][6].setAlive(true);
-    	
     	mouseListener();
-    	
     }
    
 	
 	public void mouseListener() {
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				int x = e.getX();
-                int y = e.getY();
-                
-                // Kiszámoljuk, melyik cellára kattintottunk a nagyítás alapján
-                // Nagyítási tényező és zoom középpont alkalmazása
-                int cellX;
-                int cellY;
-                if (zoomPoint != null) {
-                	double adjustedX = (x - zoomPoint.x) / zoomFactor + zoomPoint.x;
-                    double adjustedY = (y - zoomPoint.y) / zoomFactor + zoomPoint.y;
+		MouseAdapter cellSelectionAdapter = new MouseAdapter() {
+	        private boolean isDragging = false;
 
-                    // Átszámolás cellaindexre
-                    cellX = (int) (adjustedX / cellSize);
-                    cellY = (int) (adjustedY / cellSize);
-                }
-                else {
-                	cellX = (int) (x / cellSize);
-                    cellY = (int) (y / cellSize);
-                }
-                
-                
-                if (isValidPosition(cellX, cellY)){
-                	Cell cell = cells[cellX][cellY];
-                	cell.setAlive(!cell.isAlive()); // Állapot váltás
-                	repaint(); // Újrarajzolás
-                }
-			}
-		});
+	        @Override
+	        public void mousePressed(MouseEvent e) {
+	            isDragging = true;
+	            handleCellSelection(e);
+	        }
+
+	        @Override
+	        public void mouseReleased(MouseEvent e) {
+	            isDragging = false;
+	        }
+
+	        @Override
+	        public void mouseDragged(MouseEvent e) {
+	            if (isDragging) {
+	                handleCellSelection(e);
+	            }
+	        }
+
+	        private void handleCellSelection(MouseEvent e) {
+	            int x = e.getX();
+	            int y = e.getY();
+	            
+	            int cellX;
+	            int cellY;
+	            if (zoomPoint != null) {
+	                double adjustedX = (x - zoomPoint.x) / zoomFactor + zoomPoint.x;
+	                double adjustedY = (y - zoomPoint.y) / zoomFactor + zoomPoint.y;
+
+	                cellX = (int) (adjustedX / cellSize);
+	                cellY = (int) (adjustedY / cellSize);
+	            } else {
+	                cellX = (int) (x / cellSize);
+	                cellY = (int) (y / cellSize);
+	            }
+	            
+	            if (isValidPosition(cellX, cellY)) {
+	                Cell cell = cells[cellX][cellY];
+	                cell.setAlive(true); // Always set to alive when dragging
+	                repaint();
+	            }
+	        }
+	    };
+
+	    addMouseListener(cellSelectionAdapter);
+	    addMouseMotionListener(cellSelectionAdapter);
 		
+	    
 		addMouseWheelListener(new MouseWheelListener() {
 		    @Override
 		    public void mouseWheelMoved(MouseWheelEvent e) {
 		        int rotation = e.getWheelRotation();
 		        if (rotation < 0) {
 		            // Nagyítás
-		            if (zoomFactor < 3.0) { // Maximális zoom tényező
+		            if (zoomFactor < 9.0) { // Maximális zoom tényező
 		                zoomFactor *= 1.1;
 		            }
 		        } else {

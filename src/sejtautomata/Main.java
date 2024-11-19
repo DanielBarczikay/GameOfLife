@@ -4,15 +4,16 @@ import javax.swing.JFrame;
 
 
 public class Main {
-
+	
 	public static void main(String[] args) {
-		// Ne emeld 200 fölé!!
-		int rows = 180;
-		int cols = 100;
-		int cellSize = 7;
+		// Tömb méretének beállítása
+		int rows = 400;
+		int cols = 225;
+		int cellSize = 5;
 		
 		Board gamePanel = new Board(rows, cols, cellSize);
-		Game game = new Game(gamePanel); // 10x10 tábla
+		Game game = new Game();
+		game.setBoard(gamePanel);
 		
 		
 		JFrame frame = new JFrame("GameOfLife");
@@ -21,11 +22,13 @@ public class Main {
 		frame.setSize(absoluteRows, absoluteCols);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		Menu menu = new Menu(frame, game);
+		Menu menu = new Menu(game, frame);
 		
+		frame.setJMenuBar(menu.makeMenu());
         frame.setResizable(false); // Az ablak méretének fixálása
 		frame.add(gamePanel);
 		frame.setVisible(true);
 	}
+
 }
 
