@@ -3,6 +3,7 @@ package sejtautomata;
 import java.awt.GridLayout;
 import java.io.File;
 import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -19,6 +20,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class Menu {
 	private JFrame frame;
 	private Game game;
+	private String bornStr;
+	private String surviveStr;
 	
 	public Menu(Game game, JFrame frame) {
 		this.frame = frame;
@@ -136,17 +139,80 @@ public class Menu {
 		bsItem.addActionListener(e -> {
 		    // Létrehozunk egy JPanel-t a beviteli mezőknek
 		    JPanel panel = new JPanel();
-		    panel.setLayout(new GridLayout(2, 2, 5, 5));  // 2x2 grid, 5px spacing
+		    panel.setLayout(new GridLayout(3, 2, 5, 5));  // 2x2 grid, 5px spacing
 
+		    // Létrehozzuk a legörgethető menüsort
+		    String[] options = {"Classic", "Day and Night", "HighLife", "Seeds", 
+		    		"Life without Death", "Gnarl", "Replicator", "Anneal", "Serviettes", "Maze", "Cave"};
+		    JComboBox<String> comboBox = new JComboBox<>(options);
+		    
 		    // Létrehozzuk a beviteli mezőket
 		    JTextField bornField = new JTextField(10);
 		    JTextField surviveField = new JTextField(10);
-
+		    
+		    
 		    // Hozzáadjuk a címkéket és mezőket a panelhez
+		    panel.add(comboBox);
+		    panel.add(new JLabel(""));
 		    panel.add(new JLabel("Born:"));
 		    panel.add(bornField);
 		    panel.add(new JLabel("Survive:"));
 		    panel.add(surviveField);
+		    
+	
+		    comboBox.addActionListener(e2 -> {
+		        String selectedOption = (String) comboBox.getSelectedItem();
+		        switch (selectedOption) {
+		            case "Classic":
+		            	bornStr = "3";
+		            	surviveStr = "23";
+		                break;
+		            case "Day and Night":
+		            	bornStr = "3678";
+		            	surviveStr = "34678";
+		                break;
+		            case "HighLife":
+		            	bornStr = "36";
+		            	surviveStr = "23";
+		                break;
+		            case "Seeds":
+		            	bornStr = "2";
+		            	surviveStr = "";
+		                break;
+		            case "Life without Death":
+		            	bornStr = "3";
+		            	surviveStr = "012345678";
+		                break;
+		            case "Gnarl":
+		            	bornStr = "1";
+		            	surviveStr = "1";
+		                break;
+		            case "Replicator":
+		            	bornStr = "1357";
+		            	surviveStr = "1357";
+		                break;
+		            case "Anneal":
+		            	bornStr = "4678";
+		            	surviveStr = "35678";
+		                break;
+		            case "Serviettes":
+		            	bornStr = "234";
+		            	surviveStr = "";
+		                break;
+		            case "Maze":
+		            	bornStr = "3";
+		            	surviveStr = "12345";
+		                break;
+		            case "Cave":
+		            	bornStr = "678";
+		            	surviveStr = "345678";
+		                break;
+		            default:
+		                System.out.println("Nincs ilyen opció.");
+		                break;
+		        }
+		    });
+		    
 
 		    // Megjelenítjük a párbeszédablakot
 		    int result = JOptionPane.showConfirmDialog(
@@ -159,14 +225,19 @@ public class Menu {
 
 		    // Ha az OK gombra kattintott a felhasználó
 		    if (result == JOptionPane.OK_OPTION) {
-		        String bornStr = bornField.getText();
-		        String surviveStr = surviveField.getText();
-
+		    	// Ha megadott a felhasználó valamilyen értéket a mezőkben akkor az lesz a végleges
+		    	if (!bornField.getText().isBlank()) {
+		    		bornStr = bornField.getText();
+			    	surviveStr = surviveField.getText();
+		    	}
+		    	
 		        // Beállítjuk az új értékeket a játékban
 		        game.setBorn(bornStr);
 		        game.setSurvive(surviveStr);
 		    }
 		});
+		
+		
 		
 		speedItem.addActionListener(e -> {
 			JPanel panel = new JPanel();
