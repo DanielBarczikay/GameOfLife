@@ -1,6 +1,5 @@
 package sejtautomata;
 
-import java.awt.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
 import javax.swing.SwingUtilities;
@@ -14,7 +13,12 @@ public class Game implements Serializable {
 	private boolean isRunning = false;
 	boolean firstRunning = true;
 	private int speed = 60;
-	 private Thread gameThread;  // Új thread referencia
+	private Thread gameThread;  // Új thread referencia
+	private static final int[][] NEIGHBORS = {
+		    {-1, -1}, {-1, 0}, {-1, 1},
+		    {0, -1},          {0, 1},
+		    {1, -1}, {1, 0}, {1, 1}
+		};
 	
 	// A deathListben azok a intek szerepelnek amely megadja hány szomszéd esetén pusztul el a cella
 	private ArrayList<Integer> deathList = new ArrayList<>();
@@ -105,7 +109,6 @@ public class Game implements Serializable {
                 Thread.currentThread().interrupt();
             }
         }
-
     }
     
     
@@ -115,6 +118,7 @@ public class Game implements Serializable {
             for (int i = 0; i < board.getRows(); i++) {
                 for (int k = 0; k < board.getCols(); k++) {
                     board.getCells()[i][k].setAlive(false);
+                    board.getCells()[i][k].setFade(0);
                 }
             }
             board.repaint();
@@ -128,8 +132,14 @@ public class Game implements Serializable {
         SwingUtilities.invokeLater(() -> {
             for (int i = 0; i < board.getRows(); i++) {
                 for (int j = 0; j < board.getCols(); j++) {
-                    board.getCells()[i][j].setAlive(board.getOriginalCells()[i][j].isAlive());
-                    board.getCells()[i][j].setNextAlive(board.getOriginalCells()[i][j].isAlive());
+                	Cell originalCell = board.getOriginalCells()[i][j];
+                	Cell currentCell = board.getCells()[i][j];
+                	
+                	// Ha az eredeti cella halott volt
+                	currentCell.setAlive(originalCell.isAlive());
+            		currentCell.setNextAlive(originalCell.isAlive());
+                	if (!originalCell.isAlive()) 
+                		currentCell.setFade(0);
                 }
             }
             board.repaint();
@@ -139,7 +149,7 @@ public class Game implements Serializable {
     
     
     // Megkap egy Stringet és visszaad egy Arraylist<Integer>-t
-    private ArrayList<Integer> stringToList(String string) {
+    public ArrayList<Integer> stringToList(String string) {
     	ArrayList<Integer> lista = new ArrayList<>();
     	
     	for (int i = 0; i < string.length(); i++) {
@@ -151,15 +161,21 @@ public class Game implements Serializable {
         return lista;
     }
     
-    
-    // Következő iteráció beállítása
+ 
     private void leptetes() {
-    	for (int i = 0; i < board.getRows(); i++) {
-    		for (int k = 0; k < board.getCols(); k++) {
-    			Cell tmpCell = board.getCells()[i][k];
-    			tmpCell.setAlive((tmpCell.getNextAlive()) ? true : false);
-    		}
-    	}
+        for (int i = 0; i < board.getRows(); i++) {
+            for (int k = 0; k < board.getCols(); k++) {
+                Cell cell = board.getCells()[i][k];
+                
+                if (!cell.getNextAlive() && cell.isAlive()) {
+                    cell.setAlive(false); // Meghal, fadeCounter indul
+                } else if (cell.getNextAlive()) {
+                    cell.setAlive(true); // Életben marad vagy feltámad
+                } else {
+                    cell.decreaseFadeCounter(); // Csak csökkentjük a fadeCountert
+                }
+            }
+        }
     }
   
     
@@ -178,7 +194,7 @@ public class Game implements Serializable {
 		for (int i = 0; i < board.getRows(); i++) {
     		for (int k = 0; k < board.getCols(); k++) {
     			Cell tmpCell = board.getCells()[i][k];
-    			int aliveNeighbors = getAliveNeighbors(tmpCell.getPoint(), board.getCells());
+    			int aliveNeighbors = getAliveNeighbors(i, k, board.getCells());
     			
     			if (born.contains(aliveNeighbors)) tmpCell.setNextAlive(true);
     			else if (deathList.contains(aliveNeighbors)) tmpCell.setNextAlive(false);
@@ -188,18 +204,14 @@ public class Game implements Serializable {
 	
 	
     // Visszaadja egy adott cella körüli élő szomszédjainak számát
-    private int getAliveNeighbors(Point position, Cell[][] cells) {
+    private int getAliveNeighbors(int x, int y, Cell[][] cells) {
     	int count = 0;
-        for (int i = -1; i <= 1; i++) {
-            for (int j = -1; j <= 1; j++) {
-                if (i == 0 && j == 0) continue; // Ne számoljuk saját magát
-                int tempRow = (int) (position.getX() + i);
-                int tempCol = (int) (position.getY() + j);
-                if (board.isValidPosition(tempRow, tempCol) && cells[tempRow][tempCol].isAlive()){
+    	for (int[] offset : NEIGHBORS) {
+            int tempRow = x + offset[0];
+            int tempCol = y + offset[1];
+            if (board.isValidPosition(tempRow, tempCol) && cells[tempRow][tempCol].isAlive())
                 	count++;
-                }
             }
-        }
         return count;
     }
 	

@@ -35,16 +35,15 @@ public class Board extends JPanel implements Serializable {
 		// A tömbben felviszi a Cellákat
     	for (int i = 0; i < rows; i++) {
     		for (int k = 0; k < cols; k++) {
-    			cells[i][k] = new Cell(new Point(i,k)); 
-    			originalCells[i][k] = new Cell(new Point(i,k)); 
+    			cells[i][k] = new Cell(); 
+    			originalCells[i][k] = new Cell(); 
     		}	
     	}
-  
-    	mouseListener();
+    	setupMouseListener();
     }
    
 	
-	public void mouseListener() {
+	public void setupMouseListener() {
 		MouseAdapter cellSelectionAdapter = new MouseAdapter() {
 	        private boolean isDragging = false;
 
@@ -119,62 +118,62 @@ public class Board extends JPanel implements Serializable {
 		});
 	}
 	
+	private void zoomHandle(Graphics2D g2d) {
+		// Nagyítás és eltolás alkalmazása
+	    if (zoomPoint != null) {
+	        g2d.translate(zoomPoint.x, zoomPoint.y);
+	        g2d.scale(zoomFactor, zoomFactor);
+	        g2d.translate(-zoomPoint.x, -zoomPoint.y);
+	    }
+	}
+	
 	
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
 	    Graphics2D g2d = (Graphics2D) g;
+        zoomHandle(g2d);
 	    
-	    // Nagyítás és eltolás alkalmazása
-	    if (zoomPoint != null) {
-	        g2d.translate(zoomPoint.x, zoomPoint.y);
-	        g2d.scale(zoomFactor, zoomFactor);
-	        g2d.translate(-zoomPoint.x, -zoomPoint.y);
-	    }
-	    
-		 // Háttér szín
-        g.setColor(Color.BLACK);
-        g.fillRect(0, 0, getWidth(), getHeight());
 		
         // Végigmegyünk a tömbön
        	for (int i = 0; i < rows; i++) {
     		for (int k = 0; k < cols; k++) {
-    			if (cells[i][k].isAlive()) g.setColor(Color.WHITE);
-    			else g.setColor(Color.DARK_GRAY);
+    			
+    			Cell cell = cells[i][k];
+    			if (cell.isAlive()) {
+                    g.setColor(Color.WHITE); // Teljesen élő cella
+    			}
+    			else {
+    				int fade = cell.getFadeCounter();
+    				
+    				if (fade > 0) {
+                        // Halvány szürke szín a fadeCounter alapján
+                        int colorValue = 50 + fade * 40; // Szín intenzitása
+                        g.setColor(new Color(colorValue, colorValue, colorValue));
+                    } else {
+                        g.setColor(Color.DARK_GRAY); // Teljesen halott cella
+                    }
+    			}
     			
     			g.fillRect(i * cellSize, k * cellSize, cellSize, cellSize);
-    			
     			// Szélek
-    			g.setColor(Color.DARK_GRAY);
-    			g.drawRect(i * cellSize, k * cellSize, cellSize, cellSize);
+                g.setColor(Color.DARK_GRAY);
+                g.drawRect(i * cellSize, k * cellSize, cellSize, cellSize);
     		}
 		}
 	}
+       	
+       	
+
 	
 	
 	// Getterek
-	public Cell[][] getCells() {
-    	return cells;
-    }
-	
-	
-	public Cell[][] getOriginalCells() {
-    	return originalCells;
-    }
-	
-	
-    public int getRows() {
-    	return rows;
-    }
-    
-    public int getCols() {
-    	return cols;
-    }
-    
-    public int getCellSize() {
-    	return cellSize;
-    }
+	public Cell[][] getCells() { return cells; }
+	public Cell[][] getOriginalCells() { return originalCells; }
+    public int getRows() { return rows; }
+    public int getCols() { return cols; }
+    public int getCellSize() { return cellSize; }
     
 	
 	public void setOriginalCells() {
