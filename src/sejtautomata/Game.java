@@ -26,10 +26,8 @@ public class Game implements Serializable {
     
     public Game() {
     	// Alapértelmezett Conway-féle model (S23, B3)
-    	survive.add(2);
-    	survive.add(3);
-    	calculateDeath(); 
-    	born.add(3);
+    	setSurvive("23");
+    	setBorn("3");
     }
     
     
@@ -43,6 +41,10 @@ public class Game implements Serializable {
     	return board;
     }
     
+    public int getSpeed() {
+    	return speed;
+    }
+    
     public void setSpeed(String speedStr) {
     	int speedInt = Integer.parseInt(speedStr);
     	this.speed = speedInt;
@@ -53,22 +55,40 @@ public class Game implements Serializable {
     	this.born = stringToList(born);
     }
     
+    
+    public ArrayList<Integer> getDeathList() {
+    	return deathList;
+    }
+    
     public void setSurvive(String survive){
     	this.survive = stringToList(survive);
     	calculateDeath();
     }
     
-    public void newGame() {
-    	firstRunning = true;
-    	stopGame();
-    	SwingUtilities.invokeLater(() -> {
-            try {
-                startGame();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
+    // Kiszámolja milyen mennyiségű szomszédnál pusztul el a sejt
+    private void calculateDeath() {
+    	deathList.clear();
+    	for (int i = 0; i <= 8; i++) {
+    		deathList.add(i); // Feltöltjük a newList-et 0-8-ig
+    	}
+    	deathList.removeAll(survive);
     }
+    
+    // Megkap egy Stringet és visszaad egy Arraylist<Integer>-t
+    private ArrayList<Integer> stringToList(String string) {
+    	ArrayList<Integer> lista = new ArrayList<>();
+    	
+    	for (int i = 0; i < string.length(); i++) {
+            char c = string.charAt(i);
+            if (Character.isDigit(c)) { // Ellenőrizzük, hogy a karakter egy számjegy-e
+                lista.add(Character.getNumericValue(c)); // Karakter konvertálása számmá és hozzáadása a listához
+            }
+        }
+        return lista;
+    }
+    
+    
+
     
     
     public void startGame() throws InterruptedException {
@@ -85,7 +105,7 @@ public class Game implements Serializable {
             try {
                 while (isRunning) {
                     SwingUtilities.invokeLater(() -> {
-                        setBornAndDeath();
+                        refreshCells();
                         leptetes();
                         board.repaint();
                     });
@@ -148,21 +168,10 @@ public class Game implements Serializable {
 
     
     
-    // Megkap egy Stringet és visszaad egy Arraylist<Integer>-t
-    public ArrayList<Integer> stringToList(String string) {
-    	ArrayList<Integer> lista = new ArrayList<>();
-    	
-    	for (int i = 0; i < string.length(); i++) {
-            char c = string.charAt(i);
-            if (Character.isDigit(c)) { // Ellenőrizzük, hogy a karakter egy számjegy-e
-                lista.add(Character.getNumericValue(c)); // Karakter konvertálása számmá és hozzáadása a listához
-            }
-        }
-        return lista;
-    }
+
     
  
-    private void leptetes() {
+    public void leptetes() {
         for (int i = 0; i < board.getRows(); i++) {
             for (int k = 0; k < board.getCols(); k++) {
                 Cell cell = board.getCells()[i][k];
@@ -179,17 +188,10 @@ public class Game implements Serializable {
     }
   
     
-    // Kiszámolja milyen mennyiségű szomszédnál pusztul el a sejt
-    private void calculateDeath() {
-    	for (int i = 0; i <= 8; i++) {
-    		deathList.add(i); // Feltöltjük a newList-et 1-8-ig
-    	}
-    	deathList.removeAll(survive);
-    }
-    
+
   
 	// Végig megy a tömbön és az aktuális szabály alapján beállítja a cellákat
-	private void setBornAndDeath() {
+	public void refreshCells() {
 		
 		for (int i = 0; i < board.getRows(); i++) {
     		for (int k = 0; k < board.getCols(); k++) {
@@ -210,7 +212,7 @@ public class Game implements Serializable {
             int tempRow = x + offset[0];
             int tempCol = y + offset[1];
             if (board.isValidPosition(tempRow, tempCol) && cells[tempRow][tempCol].isAlive())
-                	count++;
+                count++;
             }
         return count;
     }

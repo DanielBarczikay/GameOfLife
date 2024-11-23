@@ -19,9 +19,8 @@ public class FileHandler {
         // Kiirjuk fájlba az adatokat
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))){
         	oos.writeObject(board);
-        	System.out.println("Adatok sikeresen mentve.");
         } 
-        catch (Exception e) {
+        catch (IOException e) {
         	System.err.println("Hiba történt az adatok mentése közben: " + e.getMessage());
 		}
     }
@@ -34,7 +33,6 @@ public class FileHandler {
     	// Beolvassuk fájlból az adatokat
     	try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))){
     		Board newBoard = (Board) ois.readObject();
-    		System.out.println("Adatok sikeresen betöltve.");
     		return newBoard;
     	} 
     	catch (IOException e) {

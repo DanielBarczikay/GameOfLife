@@ -83,6 +83,7 @@ public class Menu {
 					Board newBoard = FileHandler.loadGameState(fileName.getAbsolutePath());
 					SwingUtilities.invokeLater(() -> {
                         game.setBoard(newBoard);
+                        newBoard.setupMouseListener();
                         frame.getContentPane().removeAll();
                         frame.add(newBoard);
                         frame.revalidate();

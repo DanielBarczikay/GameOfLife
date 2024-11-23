@@ -84,7 +84,8 @@ public class Board extends JPanel implements Serializable {
 	            
 	            if (isValidPosition(cellX, cellY)) {
 	                Cell cell = cells[cellX][cellY];
-	                cell.setAlive(true); // Always set to alive when dragging
+	                cell.setAlive(true); 
+	                cell.setNextAlive(true);// Always set to alive when dragging
 	                repaint();
 	            }
 	        }

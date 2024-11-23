@@ -24,12 +24,11 @@ public class Cell implements Serializable {
 	
 	
 	// Setter
-	 public void setAlive(boolean alive) {
-	        this.isAlive = alive;
-	        if (!alive) {
-	            fadeCounter = 3; // Ha meghal, elindul a fade folyamat
-	        }
-	    }
+	public void setAlive(boolean alive) {
+	    this.isAlive = alive;
+	    if (!alive) 
+	        fadeCounter = 3; // Ha meghal, elindul a fade folyamat
+	}
 	
 	public void setNextAlive(boolean alive) {
 		nextIsAlive = alive;
@@ -42,5 +41,4 @@ public class Cell implements Serializable {
 	public void decreaseFadeCounter() {
 	    if (fadeCounter > 0) fadeCounter--; // Csökkenti a fade számlálót
 	}
-    
 }
