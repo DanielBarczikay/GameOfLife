@@ -9,17 +9,15 @@ public class Game implements Serializable {
     private static final long serialVersionUID = 1L;
 	private ArrayList<Integer> born = new ArrayList<>();
 	private ArrayList<Integer> survive = new ArrayList<>();
-	Board board;
+	private Board board;
 	private boolean isRunning = false;
-	boolean firstRunning = true;
+	private boolean firstRunning = true;
 	private int speed = 60;
-	private Thread gameThread;  // Új thread referencia
+	private Thread gameThread;  // Új thread
 	private static final int[][] NEIGHBORS = {
 		    {-1, -1}, {-1, 0}, {-1, 1},
 		    {0, -1},          {0, 1},
-		    {1, -1}, {1, 0}, {1, 1}
-		};
-	
+		    {1, -1}, {1, 0}, {1, 1}};
 	// A deathListben azok a intek szerepelnek amely megadja hány szomszéd esetén pusztul el a cella
 	private ArrayList<Integer> deathList = new ArrayList<>();
 
@@ -30,13 +28,29 @@ public class Game implements Serializable {
     	setBorn("3");
     }
     
-    
+    // Setterek
     public void setBoard(Board board) {
     	stopGame(); // Leállítjuk a futó játékot board csere előtt
         this.board = board;
         SwingUtilities.invokeLater(() -> board.repaint());
     }
     
+    public void setSpeed(String speedStr) {
+    	int speedInt = Integer.parseInt(speedStr);
+    	this.speed = speedInt;
+    }
+    
+    public void setSurvive(String survive){
+    	this.survive = stringToList(survive);
+    	calculateDeath();
+    }
+    
+    public void setBorn(String born){
+    	this.born = stringToList(born);
+    }
+    
+    
+    // Getterek
     public Board getBoard() {
     	return board;
     }
@@ -45,25 +59,10 @@ public class Game implements Serializable {
     	return speed;
     }
     
-    public void setSpeed(String speedStr) {
-    	int speedInt = Integer.parseInt(speedStr);
-    	this.speed = speedInt;
-    }
-    
-    
-    public void setBorn(String born){
-    	this.born = stringToList(born);
-    }
-    
-    
     public ArrayList<Integer> getDeathList() {
     	return deathList;
     }
     
-    public void setSurvive(String survive){
-    	this.survive = stringToList(survive);
-    	calculateDeath();
-    }
     
     // Kiszámolja milyen mennyiségű szomszédnál pusztul el a sejt
     private void calculateDeath() {
@@ -88,14 +87,11 @@ public class Game implements Serializable {
     }
     
     
-
-    
-    
     public void startGame() throws InterruptedException {
-    	
     	if (isRunning) return; // Ha már fut, ne indítsunk új szálat
         
         isRunning = true;
+        // Első futáskor beállítjuk az eredeti cella értékeket a Restart miatt
         if (firstRunning) {
             board.setOriginalCells();
             firstRunning = false;
@@ -120,18 +116,18 @@ public class Game implements Serializable {
     
     
     public void stopGame() {
-    	isRunning = false; // Megállítja a ciklust
+    	isRunning = false; // Megállítja a futást
         if (gameThread != null) {
             gameThread.interrupt();
             try {
-                gameThread.join(1000); // Várunk max 1 másodpercet a szál befejezésére
+                gameThread.join(500); // Várunk fél másodpercet a szál befejezésére
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
     }
     
-    
+    // Minden cellát false-ra állítunk
     public void resetGame() {
         stopGame();
         SwingUtilities.invokeLater(() -> {
@@ -144,9 +140,8 @@ public class Game implements Serializable {
             board.repaint();
         });
     }
-
     
-    
+    // Cellák visszaállítása az eredeti állapotukba
     public void restartGame() {
         stopGame();
         SwingUtilities.invokeLater(() -> {
@@ -155,9 +150,9 @@ public class Game implements Serializable {
                 	Cell originalCell = board.getOriginalCells()[i][j];
                 	Cell currentCell = board.getCells()[i][j];
                 	
-                	// Ha az eredeti cella halott volt
                 	currentCell.setAlive(originalCell.isAlive());
             		currentCell.setNextAlive(originalCell.isAlive());
+            		// Ha az eredeti cella halott volt
                 	if (!originalCell.isAlive()) 
                 		currentCell.setFade(0);
                 }
@@ -167,38 +162,37 @@ public class Game implements Serializable {
     }
 
     
-    
-
-    
- 
+    // Következő iterációba lépés
     public void leptetes() {
         for (int i = 0; i < board.getRows(); i++) {
             for (int k = 0; k < board.getCols(); k++) {
                 Cell cell = board.getCells()[i][k];
                 
+                // Ha most halt meg, indul a fadeCounter
                 if (!cell.getNextAlive() && cell.isAlive()) {
-                    cell.setAlive(false); // Meghal, fadeCounter indul
+                    cell.setAlive(false);
+                // Ha életben maradhat
                 } else if (cell.getNextAlive()) {
-                    cell.setAlive(true); // Életben marad vagy feltámad
+                    cell.setAlive(true);
+                // Ha korábban meghalt csak csökkentjük a fadeCountert
                 } else {
-                    cell.decreaseFadeCounter(); // Csak csökkentjük a fadeCountert
+                    cell.decreaseFade();
                 }
             }
         }
     }
   
-    
-
   
-	// Végig megy a tömbön és az aktuális szabály alapján beállítja a cellákat
+	// Végig megy a tömbön és az aktuális szabály alapján beállítja a cellák állapotát
 	public void refreshCells() {
 		
 		for (int i = 0; i < board.getRows(); i++) {
     		for (int k = 0; k < board.getCols(); k++) {
     			Cell tmpCell = board.getCells()[i][k];
     			int aliveNeighbors = getAliveNeighbors(i, k, board.getCells());
-    			
+    			// Ha a born lista tartalmazza a cellának a szomszéd számát
     			if (born.contains(aliveNeighbors)) tmpCell.setNextAlive(true);
+    			// Ha a death lista tartalmazza a cellának a szomszéd számát
     			else if (deathList.contains(aliveNeighbors)) tmpCell.setNextAlive(false);
     		}
 		}
@@ -216,6 +210,4 @@ public class Game implements Serializable {
             }
         return count;
     }
-	
-
 }

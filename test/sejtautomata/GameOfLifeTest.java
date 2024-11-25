@@ -21,11 +21,11 @@ class GameOfLifeTest {
 
 	    // Kezdeti állapot beállítása
 	    board.getCells()[1][1].setAlive(true);
-	    board.getCells()[1][1].setNextAlive(true);// Középső cella él
+	    board.getCells()[1][1].setNextAlive(true); // Középső cella él
 	    board.getCells()[0][1].setAlive(true);
-	    board.getCells()[0][1].setNextAlive(true);// Egy szomszéd él
+	    board.getCells()[0][1].setNextAlive(true); // Egy szomszéd él
 	    board.getCells()[2][1].setAlive(true);
-	    board.getCells()[2][1].setNextAlive(true);// Egy másik szomszéd él
+	    board.getCells()[2][1].setNextAlive(true); // Egy másik szomszéd él
 	}
 	
 	
@@ -56,11 +56,9 @@ class GameOfLifeTest {
 	@Test
 	public void testRefreshCells() {
 	    game.refreshCells();
-
-	    // Ellenőrizd a sejt életképességét
-	    assertTrue(board.getCells()[1][1].getNextAlive(), "The middle cell should stay alive.");
-	    assertTrue(board.getCells()[1][0].getNextAlive(), "The left neighbor should come alive.");
-	    assertFalse(board.getCells()[0][0].getNextAlive(), "The top-left cell should stay dead.");
+	    assertTrue(board.getCells()[1][1].getNextAlive(), "A középső cellának életben kell maradnia.");
+	    assertTrue(board.getCells()[1][0].getNextAlive(), "A bal szomszédnak életben kell maradnia.");
+	    assertFalse(board.getCells()[0][0].getNextAlive(), "A bal felső szomdszédnak halottnak kell lennie.");
 	}
 	
 	
@@ -71,12 +69,11 @@ class GameOfLifeTest {
 	    // Várakozás egy ciklus lefutásáig
 	    Thread.sleep(60);
 
-	    // Ellenőrzés: sejtek állapota a szabályok alapján
-	    assertFalse(board.getCells()[2][2].isAlive(), "Új cellának életben kell lennie.");
+	    assertFalse(board.getCells()[2][2].isAlive(), "A cellának halottnak kell lennie.");
 	    assertFalse(board.getCells()[0][0].isAlive(), "A cellának halottnak kell lennie.");
 	    assertTrue(board.getCells()[1][1].isAlive(), "A középső cellának életben kell maradnia.");
 
-	    game.stopGame(); // Tisztítás
+	    game.stopGame(); 
 	}
 	
 	
@@ -104,24 +101,24 @@ class GameOfLifeTest {
 	}
 	
 	
-	
 	@Test
 	public void testSaveAndLoadGameState() throws ClassNotFoundException {
-	    // Tesztadatok előkészítése
-	    Board originalBoard = new Board(3, 3, 5); // 3x3-as tábla, cellaméret 5
-	    originalBoard.getCells()[1][1].setAlive(true); // Egy cella életben van
 	    
 	    // Ideiglenes fájl neve
         String tempFileName = "tempFile";
-        FileHandler.saveGameState(tempFileName, originalBoard);
+        FileHandler.saveGameState(tempFileName, board);
         
         // Betöltés
         Board loadedBoard = FileHandler.loadGameState(tempFileName);
 	    // Ellenőrzés
         assertNotNull(loadedBoard, "A betöltött tábla nem lehet null.");
-        assertEquals(originalBoard.getRows(), loadedBoard.getRows(), "A sorok száma nem egyezik.");
-        assertEquals(originalBoard.getCols(), loadedBoard.getCols(), "Az oszlopok száma nem egyezik.");
-        assertEquals(originalBoard.getCells()[1][1].isAlive(), loadedBoard.getCells()[1][1].isAlive(),
+        assertEquals(board.getRows(), loadedBoard.getRows(), "A sorok száma nem egyezik.");
+        assertEquals(board.getCols(), loadedBoard.getCols(), "Az oszlopok száma nem egyezik.");
+        assertEquals(board.getCells()[1][1].isAlive(), loadedBoard.getCells()[1][1].isAlive(),
+                "A cellák állapota nem egyezik.");
+        assertEquals(board.getCells()[0][1].isAlive(), loadedBoard.getCells()[0][1].isAlive(),
+                "A cellák állapota nem egyezik.");
+        assertEquals(board.getCells()[0][0].isAlive(), loadedBoard.getCells()[0][0].isAlive(),
                 "A cellák állapota nem egyezik.");
         
 	    // Ideiglenes fájl törlése
@@ -135,16 +132,14 @@ class GameOfLifeTest {
 	@Test
 	public void testFadeCounter() {
 		board.getCells()[1][1].setAlive(false);
-		assertEquals(3, board.getCells()[1][1].getFadeCounter());
+		assertEquals(3, board.getCells()[1][1].getFade());
 	}
 	
 	
 	@Test
 	public void testDecreaseFadeCounter() {
 		board.getCells()[1][1].setAlive(false);
-		board.getCells()[1][1].decreaseFadeCounter();
-		assertEquals(2, board.getCells()[1][1].getFadeCounter());
+		board.getCells()[1][1].decreaseFade();
+		assertEquals(2, board.getCells()[1][1].getFade());
 	}
-	
-	
 }

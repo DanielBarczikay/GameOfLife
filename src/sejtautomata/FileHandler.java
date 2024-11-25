@@ -10,9 +10,8 @@ import java.io.ObjectOutputStream;
 public class FileHandler {
 	private static final String FILE_EXTENSION = ".ser";
     
-    // Játékállás mentése fájlba (mindig tömörítve)
+    // Játékállás mentése fájlba
     public static void saveGameState(String fileName, Board board) {
-    	
         // Fájlnév ellenőrzése és korrigálása
         if (!fileName.endsWith(FILE_EXTENSION)) fileName += FILE_EXTENSION;
         
@@ -25,7 +24,7 @@ public class FileHandler {
 		}
     }
     
-    
+    // Játékállás betöltése
     public static Board loadGameState(String fileName) throws ClassNotFoundException {
     	// Fájlnév ellenőrzése és korrigálása
     	if (!fileName.endsWith(FILE_EXTENSION)) fileName += FILE_EXTENSION; 

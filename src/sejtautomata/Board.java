@@ -18,7 +18,7 @@ public class Board extends JPanel implements Serializable {
 	private final int cols; // Hány cella van egy adott oszlopban
 	private int cellSize;
 	private Cell[][] cells;
-	private Cell[][] originalCells; // A restart miatt
+	private Cell[][] originalCells; // A restart metódus miatt
 	private Point zoomPoint = null;
 	private double zoomFactor = 1.0;
 
@@ -32,7 +32,7 @@ public class Board extends JPanel implements Serializable {
         cells = new Cell[rows][cols];
         originalCells = new Cell[rows][cols];
         
-		// A tömbben felviszi a Cellákat
+		// A tömböt feltöltjük Cellákkal
     	for (int i = 0; i < rows; i++) {
     		for (int k = 0; k < cols; k++) {
     			cells[i][k] = new Cell(); 
@@ -66,10 +66,10 @@ public class Board extends JPanel implements Serializable {
 	        }
 
 	        private void handleCellSelection(MouseEvent e) {
-	            int x = e.getX();
+	            int x = e.getX(); // Tényleges koordináták
 	            int y = e.getY();
 	            
-	            int cellX;
+	            int cellX; // A Cellnek a koordinátája
 	            int cellY;
 	            if (zoomPoint != null) {
 	                double adjustedX = (x - zoomPoint.x) / zoomFactor + zoomPoint.x;
@@ -77,15 +77,17 @@ public class Board extends JPanel implements Serializable {
 
 	                cellX = (int) (adjustedX / cellSize);
 	                cellY = (int) (adjustedY / cellSize);
-	            } else {
+	            } 
+	            else {
 	                cellX = (int) (x / cellSize);
 	                cellY = (int) (y / cellSize);
 	            }
 	            
 	            if (isValidPosition(cellX, cellY)) {
+	            	// A kijelölt Cellát élőre állítjuk
 	                Cell cell = cells[cellX][cellY];
 	                cell.setAlive(true); 
-	                cell.setNextAlive(true);// Always set to alive when dragging
+	                cell.setNextAlive(true);
 	                repaint();
 	            }
 	        }
@@ -146,17 +148,17 @@ public class Board extends JPanel implements Serializable {
                     g.setColor(Color.WHITE); // Teljesen élő cella
     			}
     			else {
-    				int fade = cell.getFadeCounter();
+    				int fade = cell.getFade();
     				
     				if (fade > 0) {
                         // Halvány szürke szín a fadeCounter alapján
                         int colorValue = 50 + fade * 40; // Szín intenzitása
                         g.setColor(new Color(colorValue, colorValue, colorValue));
-                    } else {
+                    } 
+    				else {
                         g.setColor(Color.DARK_GRAY); // Teljesen halott cella
                     }
     			}
-    			
     			g.fillRect(i * cellSize, k * cellSize, cellSize, cellSize);
     			// Szélek
                 g.setColor(Color.DARK_GRAY);
@@ -165,9 +167,6 @@ public class Board extends JPanel implements Serializable {
 		}
 	}
        	
-       	
-
-	
 	
 	// Getterek
 	public Cell[][] getCells() { return cells; }
@@ -190,5 +189,4 @@ public class Board extends JPanel implements Serializable {
     public boolean isValidPosition(int row, int col) {
     	return row >= 0 && row < rows && col >= 0 && col < cols;
     }
-
 }

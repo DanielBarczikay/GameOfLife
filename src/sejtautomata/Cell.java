@@ -7,7 +7,7 @@ public class Cell implements Serializable {
     private static final long serialVersionUID = 1L;
 	private boolean isAlive = false;
 	private boolean nextIsAlive = false;
-	private int fadeCounter = 0;       // Halványulási szint (0 = teljesen halott, 5 = éppen most halt meg)
+	private int fadeCounter = 0;       // Halványulási szint (0 = teljesen halott, 3 = éppen most halt meg)
 
 	// Getter
 	public boolean isAlive() {
@@ -18,7 +18,7 @@ public class Cell implements Serializable {
 		return nextIsAlive;
 	}
     
-	public int getFadeCounter() {
+	public int getFade() {
 	    return fadeCounter;
 	}
 	
@@ -38,7 +38,9 @@ public class Cell implements Serializable {
 		fadeCounter = fade;
 	}
 	
-	public void decreaseFadeCounter() {
-	    if (fadeCounter > 0) fadeCounter--; // Csökkenti a fade számlálót
+	
+	// Csökkenti a fade számlálót
+	public void decreaseFade() {
+	    if (fadeCounter > 0) fadeCounter--; 
 	}
 }

@@ -6,19 +6,19 @@ import javax.swing.JFrame;
 public class Main {
 	
 	public static void main(String[] args) {
-		// Tömb méretének beállítása
+		// Tömb és Cella méret beállítása
 		int rows = 400;
 		int cols = 225;
 		int cellSize = 5;
 		
-		Board gamePanel = new Board(rows, cols, cellSize);
+		Board board = new Board(rows, cols, cellSize);
 		Game game = new Game();
-		game.setBoard(gamePanel);
+		game.setBoard(board);
 		
 		
 		JFrame frame = new JFrame("GameOfLife");
-		int absoluteRows = gamePanel.getCellSize() * rows;
-		int absoluteCols = gamePanel.getCellSize() * cols;
+		int absoluteRows = board.getCellSize() * rows;
+		int absoluteCols = board.getCellSize() * cols;
 		frame.setSize(absoluteRows, absoluteCols);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -26,9 +26,7 @@ public class Main {
 		
 		frame.setJMenuBar(menu.makeMenu());
         frame.setResizable(false); // Az ablak méretének fixálása
-		frame.add(gamePanel);
+		frame.add(board);
 		frame.setVisible(true);
 	}
-
 }
-
