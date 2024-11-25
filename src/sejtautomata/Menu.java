@@ -7,8 +7,8 @@ import javax.swing.JMenuItem;
 
 
 public class Menu {
-	private JFrame frame;
-	private Game game;
+	private final JFrame frame;
+	private final Game game;
 
 	
 	public Menu(Game game, JFrame frame) {

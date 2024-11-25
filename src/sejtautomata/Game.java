@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import javax.swing.SwingUtilities;
 
 
-public class Game implements Serializable {
+public final class Game implements Serializable {
     private static final long serialVersionUID = 1L;
 	private ArrayList<Integer> born = new ArrayList<>();
 	private ArrayList<Integer> survive = new ArrayList<>();
@@ -19,7 +19,7 @@ public class Game implements Serializable {
 		    {0, -1},          {0, 1},
 		    {1, -1}, {1, 0}, {1, 1}};
 	// A deathListben azok a intek szerepelnek amely megadja hány szomszéd esetén pusztul el a cella
-	private ArrayList<Integer> deathList = new ArrayList<>();
+	private final ArrayList<Integer> deathList = new ArrayList<>();
 
     
     public Game() {

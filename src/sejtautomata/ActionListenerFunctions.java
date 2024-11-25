@@ -17,8 +17,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class ActionListenerFunctions {
 	private static String bornStr;
 	private static String surviveStr;
-	private JFrame frame;
-	private Game game;
+	private final JFrame frame;
+	private final Game game;
 
 	
 	public ActionListenerFunctions(Game game, JFrame frame) {
@@ -166,53 +166,51 @@ public class ActionListenerFunctions {
 		String selectedOption = (String) comboBox.getSelectedItem();
 		// Választható opciók
         switch (selectedOption) {
-            case "Classic":
-            	bornStr = "3";
-            	surviveStr = "23";
-                break;
-            case "Day and Night":
-            	bornStr = "3678";
-            	surviveStr = "34678";
-                break;
-            case "HighLife":
-            	bornStr = "36";
-            	surviveStr = "23";
-                break;
-            case "Seeds":
-            	bornStr = "2";
-            	surviveStr = "";
-                break;
-            case "Life without Death":
-            	bornStr = "3";
-            	surviveStr = "012345678";
-                break;
-            case "Gnarl":
-            	bornStr = "1";
-            	surviveStr = "1";
-                break;
-            case "Replicator":
-            	bornStr = "1357";
-            	surviveStr = "1357";
-                break;
-            case "Anneal":
-            	bornStr = "4678";
-            	surviveStr = "35678";
-                break;
-            case "Serviettes":
-            	bornStr = "234";
-            	surviveStr = "";
-                break;
-            case "Maze":
-            	bornStr = "3";
-            	surviveStr = "12345";
-                break;
-            case "Cave":
-            	bornStr = "678";
-            	surviveStr = "345678";
-                break;
-            default:
-                System.out.println("Nincs ilyen opció.");
-                break;
+            case "Classic" -> {
+                bornStr = "3";
+                surviveStr = "23";
+                }
+            case "Day and Night" -> {
+                bornStr = "3678";
+                surviveStr = "34678";
+                }
+            case "HighLife" -> {
+                bornStr = "36";
+                surviveStr = "23";
+                }
+            case "Seeds" -> {
+                bornStr = "2";
+                surviveStr = "";
+                }
+            case "Life without Death" -> {
+                bornStr = "3";
+                surviveStr = "012345678";
+                }
+            case "Gnarl" -> {
+                bornStr = "1";
+                surviveStr = "1";
+                }
+            case "Replicator" -> {
+                bornStr = "1357";
+                surviveStr = "1357";
+                }
+            case "Anneal" -> {
+                bornStr = "4678";
+                surviveStr = "35678";
+                }
+            case "Serviettes" -> {
+                bornStr = "234";
+                surviveStr = "";
+                }
+            case "Maze" -> {
+                bornStr = "3";
+                surviveStr = "12345";
+                }
+            case "Cave" -> {
+                bornStr = "678";
+                surviveStr = "345678";
+                }
+            default -> System.out.println("Nincs ilyen opció.");
         }
 	}
 }

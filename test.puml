@@ -1,0 +1,97 @@
+@startuml
+
+class Game {
+    - ArrayList<Integer> born
+    - ArrayList<Integer> survive
+    - Board board
+    - boolean isRunning
+    - boolean firstRunning
+    - int speed
+    - Thread gameThread
+    - static final int[][] NEIGHBORS
+    - final ArrayList<Integer> deathList
+
+    + Game()
+    + void setBoard(Board board)
+    + void setSpeed(String speedStr)
+    + void setSurvive(String survive)
+    + void setBorn(String born)
+    + Board getBoard()
+    + int getSpeed()
+    + ArrayList<Integer> getDeathList()
+    - void calculateDeath()
+    - ArrayList<Integer> stringToList(String string)
+    + void startGame() throws InterruptedException
+    + void stopGame()
+    + void resetGame()
+    + void restartGame()
+    + void leptetes()
+    - int getAliveNeighbors(int x, int y, Cell[][] cells)
+}
+
+class FileHandler {
+    - static final String FILE_EXTENSION = ".ser"
+
+    + static void saveGameState(String fileName, Board board)
+    + static Board loadGameState(String fileName) throws ClassNotFoundException
+}
+
+class Menu {
+    - JFrame frame
+    - Game game
+
+    + Menu(Game game, JFrame frame)
+    + JMenuBar makeMenu()
+}
+
+class Cell {
+    - boolean isAlive
+    - boolean nextIsAlive
+    - int fadeCounter
+    - static final long serialVersionUID
+
+    + boolean isAlive()
+    + boolean getNextAlive()
+    + int getFade()
+    + void setAlive(boolean alive)
+    + void setNextAlive(boolean alive)
+    + void setFade(int fade)
+    + void decreaseFade()
+}
+
+class Board {
+    - int rows
+    - int cols
+    - int cellSize
+    - Cell[][] cells
+    - Cell[][] originalCells
+
+    + Board(int rows, int cols, int cellSize)
+    + int getCellSize()
+    + boolean isValidPosition(int row, int col)
+}
+
+class ActionListenerFunctions {
+    - Game game
+    - JFrame frame
+
+    + ActionListenerFunctions(Game game, JFrame frame)
+    + void importItem()
+    + void exportItem()
+    + void bsItem()
+    + void speedItem()
+}
+
+class Main {
+    + static void main(String[] args)
+}
+
+Main *-- Board
+Main *-- Game
+Main *-- Menu
+Game *-- Board
+Board o-- Cell
+Menu *-- Game
+ActionListenerFunctions *-- Game
+
+@enduml

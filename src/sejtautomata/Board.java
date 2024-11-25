@@ -12,13 +12,13 @@ import java.io.Serializable;
 import javax.swing.JPanel;
 
 
-public class Board extends JPanel implements Serializable {
+public final class Board extends JPanel implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private final int rows; // Hány cella van egy adott sorban
 	private final int cols; // Hány cella van egy adott oszlopban
-	private int cellSize;
-	private Cell[][] cells;
-	private Cell[][] originalCells; // A restart metódus miatt
+	private final int cellSize;
+	private final Cell[][] cells;
+	private final Cell[][] originalCells; // A restart metódus miatt
 	private Point zoomPoint = null;
 	private double zoomFactor = 1.0;
 
