@@ -73,6 +73,7 @@ public class Game implements Serializable {
     	deathList.removeAll(survive);
     }
     
+    
     // Megkap egy Stringet és visszaad egy Arraylist<Integer>-t
     private ArrayList<Integer> stringToList(String string) {
     	ArrayList<Integer> lista = new ArrayList<>();
@@ -87,6 +88,7 @@ public class Game implements Serializable {
     }
     
     
+    // Játék indítása
     public void startGame() throws InterruptedException {
     	if (isRunning) return; // Ha már fut, ne indítsunk új szálat
         
@@ -115,6 +117,7 @@ public class Game implements Serializable {
     }
     
     
+    // Játék megállítása
     public void stopGame() {
     	isRunning = false; // Megállítja a futást
         if (gameThread != null) {

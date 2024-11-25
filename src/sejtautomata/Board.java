@@ -41,64 +41,70 @@ public class Board extends JPanel implements Serializable {
     	}
     	setupMouseListener();
     }
+	
+	
+	// Cellák kijelöléséért felelő metódus
+    private void handleCellSelection(MouseEvent e) {
+    	// Tényleges koordináták
+        int x = e.getX(); 
+        int y = e.getY();
+        // A Cellnek a koordinátája
+        int cellX; 
+        int cellY;
+        
+        // Ha nagyítás történt kiszámoljuk az aktuális cellát a zoomFactorhoz képest
+        if (zoomPoint != null) {
+            double adjustedX = (x - zoomPoint.x) / zoomFactor + zoomPoint.x;
+            double adjustedY = (y - zoomPoint.y) / zoomFactor + zoomPoint.y;
+
+            cellX = (int) (adjustedX / cellSize);
+            cellY = (int) (adjustedY / cellSize);
+        } 
+        else {
+            cellX = (int) (x / cellSize);
+            cellY = (int) (y / cellSize);
+        }
+        
+        if (isValidPosition(cellX, cellY)) {
+        	// A kijelölt Cellát élőre állítjuk
+            Cell cell = cells[cellX][cellY];
+            cell.setAlive(true); 
+            cell.setNextAlive(true);
+            repaint();
+        }
+    }
    
 	
+	// Egér figyelő metódus
 	public void setupMouseListener() {
 		MouseAdapter cellSelectionAdapter = new MouseAdapter() {
 	        private boolean isDragging = false;
-
+	        
+	        // Lenyomott egérgomb
 	        @Override
 	        public void mousePressed(MouseEvent e) {
 	            isDragging = true;
 	            handleCellSelection(e);
 	        }
-
+	        
+	        // Felengedett egérgomb
 	        @Override
 	        public void mouseReleased(MouseEvent e) {
 	            isDragging = false;
 	        }
-
+	        
+	        // Folyamatosan lenyomott egérgomb
 	        @Override
 	        public void mouseDragged(MouseEvent e) {
 	            if (isDragging) {
 	                handleCellSelection(e);
 	            }
 	        }
-
-	        private void handleCellSelection(MouseEvent e) {
-	            int x = e.getX(); // Tényleges koordináták
-	            int y = e.getY();
-	            
-	            int cellX; // A Cellnek a koordinátája
-	            int cellY;
-	            if (zoomPoint != null) {
-	                double adjustedX = (x - zoomPoint.x) / zoomFactor + zoomPoint.x;
-	                double adjustedY = (y - zoomPoint.y) / zoomFactor + zoomPoint.y;
-
-	                cellX = (int) (adjustedX / cellSize);
-	                cellY = (int) (adjustedY / cellSize);
-	            } 
-	            else {
-	                cellX = (int) (x / cellSize);
-	                cellY = (int) (y / cellSize);
-	            }
-	            
-	            if (isValidPosition(cellX, cellY)) {
-	            	// A kijelölt Cellát élőre állítjuk
-	                Cell cell = cells[cellX][cellY];
-	                cell.setAlive(true); 
-	                cell.setNextAlive(true);
-	                repaint();
-	            }
-	        }
 	    };
-
-	    addMouseListener(cellSelectionAdapter);
-	    addMouseMotionListener(cellSelectionAdapter);
-		
 	    
-		addMouseWheelListener(new MouseWheelListener() {
-		    @Override
+	    MouseWheelListener mouseWheelHandle = new MouseWheelListener() {
+	    	// Görgetés
+	    	@Override
 		    public void mouseWheelMoved(MouseWheelEvent e) {
 		        int rotation = e.getWheelRotation();
 		        if (rotation < 0) {
@@ -115,14 +121,17 @@ public class Board extends JPanel implements Serializable {
 
 		        // A zoom pont az egér pozíciójánál
 		        zoomPoint = e.getPoint();
-
 		        repaint();
 		    }
-		});
+		};
+	    addMouseListener(cellSelectionAdapter);
+	    addMouseMotionListener(cellSelectionAdapter);
+		addMouseWheelListener(mouseWheelHandle);
 	}
 	
+	
+	// Nagyítás és kicsinyítés alkalmazása 
 	private void zoomHandle(Graphics2D g2d) {
-		// Nagyítás és eltolás alkalmazása
 	    if (zoomPoint != null) {
 	        g2d.translate(zoomPoint.x, zoomPoint.y);
 	        g2d.scale(zoomFactor, zoomFactor);
@@ -131,6 +140,7 @@ public class Board extends JPanel implements Serializable {
 	}
 	
 	
+	// Négyzetek kirajzolásához tartozó függvény
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -175,7 +185,8 @@ public class Board extends JPanel implements Serializable {
     public int getCols() { return cols; }
     public int getCellSize() { return cellSize; }
     
-	
+    
+	// Beállítja az eredeti cellákat
 	public void setOriginalCells() {
     	for (int i = 0; i < rows; i++) {
     	    for (int j = 0; j < cols; j++) {

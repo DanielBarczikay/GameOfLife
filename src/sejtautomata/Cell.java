@@ -7,7 +7,7 @@ public class Cell implements Serializable {
     private static final long serialVersionUID = 1L;
 	private boolean isAlive = false;
 	private boolean nextIsAlive = false;
-	private int fadeCounter = 0;       // Halványulási szint (0 = teljesen halott, 3 = éppen most halt meg)
+	private int fadeCounter = 0; // Halványulási szint (0 = teljesen halott, 3 = éppen most halt meg)
 
 	// Getter
 	public boolean isAlive() {

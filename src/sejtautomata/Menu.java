@@ -17,11 +17,12 @@ public class Menu {
 	}
 	
 	
+	// Menü beállítása
 	public JMenuBar makeMenu() {
 		JMenuBar menuBar = new JMenuBar();
 		ActionListenerFunctions alf = new ActionListenerFunctions(game, frame);
 		
-		// Főmenü
+		// Főmenü létrehozása
 		JMenu fileMenu = new JMenu("File");
 		JMenu gameMenu = new JMenu("Game");
 		JMenu settingsMenu = new JMenu("Settings");
@@ -29,7 +30,7 @@ public class Menu {
 		menuBar.add(gameMenu);
 		menuBar.add(settingsMenu);
 		
-		// Almenü
+		// Almenü létrehozása
 		JMenuItem importItem = new JMenuItem("Import");
 		JMenuItem exportItem = new JMenuItem("Export"); 
 		JMenuItem exitItem = new JMenuItem("Exit");

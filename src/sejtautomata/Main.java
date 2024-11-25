@@ -4,7 +4,7 @@ import javax.swing.JFrame;
 
 
 public class Main {
-	
+	// Játékot ebből a fájlból lehet indítani
 	public static void main(String[] args) {
 		// Tömb és Cella méret beállítása
 		int rows = 400;

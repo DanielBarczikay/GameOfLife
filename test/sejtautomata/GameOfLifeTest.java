@@ -13,6 +13,7 @@ class GameOfLifeTest {
 	private Game game;
 	private Board board;
 	
+	// Kezdeti állapot beállítása
 	@BeforeEach
 	public void setUp() throws Exception {
 		game = new Game();
@@ -28,13 +29,13 @@ class GameOfLifeTest {
 	    board.getCells()[2][1].setNextAlive(true); // Egy másik szomszéd él
 	}
 	
-	
+	// Conway-féle S23 B3 szabály alapján kezdődik-e a játék
 	@Test
     public void testDefaultRules() {
         assertEquals(new ArrayList<>(List.of(0, 1, 4, 5, 6, 7, 8)), game.getDeathList());
     }
 
-	
+	// Integerré átalakítás megtörténik-e
 	@Test
 	public void testSpeed() {
 		String str = "123";
@@ -42,7 +43,7 @@ class GameOfLifeTest {
 		assertEquals(123, game.getSpeed());
 	}
 	
-	
+	// death lista beállítása helyesen történik-e
 	@Test
 	public void testDeathList() {
 		game.setSurvive("a1234,567");
@@ -52,7 +53,7 @@ class GameOfLifeTest {
 		assertEquals(lista, game.getDeathList());
 	}
 	
-	
+	// RefreshCells és a getAliveNeighbors metódusok tesztelése
 	@Test
 	public void testRefreshCells() {
 	    game.refreshCells();
@@ -61,7 +62,7 @@ class GameOfLifeTest {
 	    assertFalse(board.getCells()[0][0].getNextAlive(), "A bal felső szomdszédnak halottnak kell lennie.");
 	}
 	
-	
+	// StartGame metod tesztelése
 	@Test
 	public void testGameFlow() throws InterruptedException {
 	    game.startGame();
@@ -76,7 +77,7 @@ class GameOfLifeTest {
 	    game.stopGame(); 
 	}
 	
-	
+	// ResetGame metod tesztelése
 	@Test 
 	public void testResetGame(){
 		game.resetGame();
@@ -87,7 +88,7 @@ class GameOfLifeTest {
 		}
 	}
 	
-	
+	// RestartGame metod tesztelése
 	@Test
 	public void testRestartGame() throws InterruptedException {
 		game.startGame();
@@ -100,7 +101,7 @@ class GameOfLifeTest {
 		assertFalse(board.getCells()[1][0].isAlive());
 	}
 	
-	
+	// File kezelés működésének ellenőrzése
 	@Test
 	public void testSaveAndLoadGameState() throws ClassNotFoundException {
 	    
@@ -128,14 +129,14 @@ class GameOfLifeTest {
         }
     }
 	 
-	
+	// Fade folyamat helyes működésének tesztelése
 	@Test
 	public void testFadeCounter() {
 		board.getCells()[1][1].setAlive(false);
 		assertEquals(3, board.getCells()[1][1].getFade());
 	}
 	
-	
+	// Fade folyamat helyes működésének tesztelése
 	@Test
 	public void testDecreaseFadeCounter() {
 		board.getCells()[1][1].setAlive(false);

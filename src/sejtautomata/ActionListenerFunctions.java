@@ -27,6 +27,7 @@ public class ActionListenerFunctions {
 	}
 	
 	
+	// importItem-hez tartozó ActionListener függvény
 	public void importItem() {
 		JFileChooser fileChooser = new JFileChooser();
 	    
@@ -62,6 +63,7 @@ public class ActionListenerFunctions {
 	}
 	
 	
+	// exportItem-hez tartozó ActionListener függvény
 	public void exportItem() {
 	    JFileChooser fileChooser = new JFileChooser();
 	    
@@ -90,6 +92,7 @@ public class ActionListenerFunctions {
 	}
 	
 	
+	// bsItem-hez tartozó ActionListener függvény
 	public void bsItem() {
 		// Létrehozunk egy JPanel-t a beviteli mezőknek
 	    JPanel panel = new JPanel();
@@ -132,6 +135,7 @@ public class ActionListenerFunctions {
 	}
 	
 	
+	// speedItem-hez tartozó ActionListener függvény
 	public void speedItem() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Függőleges elrendezés
@@ -156,6 +160,8 @@ public class ActionListenerFunctions {
 	    }
 	}
 	
+	
+	// bsItem-hez azon belül a ComboBoxhoz tartozó ActionListener függvény
 	private void comboBoxItems(JComboBox<String> comboBox) {
 		String selectedOption = (String) comboBox.getSelectedItem();
 		// Választható opciók
